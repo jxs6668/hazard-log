@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐患管理工作日志</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      color: #1f2937;
+      background: #f4f6f8;
+    }
+
+    .page {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      padding: 20px 24px;
+      color: #ffffff;
+      background: #1f6f8b;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(31, 111, 139, 0.18);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .panel {
+      margin-bottom: 20px;
+      padding: 22px;
+      background: #ffffff;
+      border: 1px solid #dbe3ea;
+      border-radius: 8px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 42px;
+      padding: 10px 12px;
+      font: inherit;
+      color: #111827;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #1f6f8b;
+      box-shadow: 0 0 0 3px rgba(31, 111, 139, 0.14);
+    }
+
+    input[type="file"] {
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      min-height: 42px;
+      padding: 0 18px;
+      font: inherit;
+      font-weight: 700;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.16s ease, opacity 0.16s ease, background 0.16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .save-btn {
+      color: #ffffff;
+      background: #1f6f8b;
+    }
+
+    .save-btn:hover {
+      background: #185a70;
+    }
+
+    .delete-btn {
+      min-height: 34px;
+      padding: 0 12px;
+      color: #ffffff;
+      background: #dc2626;
+    }
+
+    .delete-btn:hover {
+      background: #b91c1c;
+    }
+
+    .edit-btn {
+      min-height: 34px;
+      padding: 0 12px;
+      color: #ffffff;
+      background: #2563eb;
+    }
+
+    .edit-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .export-btn {
+      color: #ffffff;
+      background: #15803d;
+    }
+
+    .export-btn:hover {
+      background: #166534;
+    }
+
+    .message {
+      min-height: 22px;
+      margin: 0;
+      font-size: 14px;
+      color: #1f6f8b;
+    }
+
+    .message.error {
+      color: #dc2626;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      color: #111827;
+    }
+
+    .count {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .empty {
+      padding: 24px;
+      text-align: center;
+      color: #64748b;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 8px;
+    }
+
+    .records {
+      display: grid;
+      gap: 14px;
+    }
+
+    .record {
+      padding: 16px;
+      background: #ffffff;
+      border: 1px solid #dbe3ea;
+      border-radius: 8px;
+    }
+
+    .record-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .record-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .complete-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 34px;
+      padding: 0 10px;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 700;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .complete-toggle input {
+      width: 16px;
+      min-height: 16px;
+      margin: 0;
+      accent-color: #15803d;
+      cursor: pointer;
+    }
+
+    .record-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 0 10px;
+      color: #0f4f64;
+      font-size: 13px;
+      font-weight: 700;
+      background: #e7f3f7;
+      border: 1px solid #b9dce7;
+      border-radius: 999px;
+    }
+
+    .time {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .record-body {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      gap: 10px;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    .item strong {
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .photo-wrap {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #edf2f7;
+    }
+
+    .photo-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .photo-wrap img {
+      display: block;
+      width: 128px;
+      height: 96px;
+      object-fit: contain;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #f8fafc;
+      cursor: zoom-in;
+    }
+
+    .add-photo-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 128px;
+      height: 96px;
+      padding: 10px;
+      color: #1f6f8b;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      background: #f8fafc;
+      border: 1px dashed #94a3b8;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .add-photo-label input {
+      display: none;
+    }
+
+    .preview-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, 0.78);
+      z-index: 1000;
+    }
+
+    .preview-modal.open {
+      display: flex;
+    }
+
+    .preview-content {
+      position: relative;
+      max-width: min(92vw, 980px);
+      max-height: 88vh;
+    }
+
+    .preview-content img {
+      display: block;
+      max-width: 100%;
+      max-height: 88vh;
+      object-fit: contain;
+      background: #ffffff;
+      border-radius: 8px;
+    }
+
+    .preview-close {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      min-width: 36px;
+      min-height: 36px;
+      padding: 0;
+      color: #111827;
+      font-size: 22px;
+      line-height: 1;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 50%;
+    }
+
+    .preview-delete {
+      position: absolute;
+      right: 0;
+      bottom: -48px;
+      min-height: 38px;
+      color: #ffffff;
+      background: #dc2626;
+    }
+
+    .preview-delete:hover {
+      background: #b91c1c;
+    }
+
+    .edit-area {
+      width: 100%;
+      min-height: 86px;
+      margin-top: 4px;
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .confirm-edit-btn {
+      min-height: 34px;
+      padding: 0 12px;
+      color: #ffffff;
+      background: #15803d;
+    }
+
+    .cancel-edit-btn {
+      min-height: 34px;
+      padding: 0 12px;
+      color: #334155;
+      background: #e2e8f0;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 20px, 1100px);
+        padding-top: 14px;
+      }
+
+      header,
+      .panel {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .record-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .delete-btn {
+        width: 100%;
+      }
+
+      .edit-btn {
+        width: 100%;
+      }
+
+      .record-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .complete-toggle {
+        justify-content: center;
+      }
+
+      .edit-actions {
+        flex-direction: column;
+      }
+
+      .item {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>隐患管理工作日志</h1>
+    </header>
+
+    <section class="panel" aria-label="新增工作日志">
+      <form id="logForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="type">工单类型</label>
+            <select id="type" required>
+              <option value="线路维护处理">线路维护处理</option>
+              <option value="集客维护处理">集客维护处理</option>
+              <option value="工程队处理">工程队处理</option>
+              <option value="其他处理">其他处理</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="location">故障地点</label>
+            <select id="location" required>
+              <option value="城区">城区</option>
+              <option value="东槽">东槽</option>
+              <option value="西槽">西槽</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="problem">问题描述</label>
+            <textarea id="problem" placeholder="请输入问题描述" required></textarea>
+          </div>
+
+          <div class="field full">
+            <label for="photo">隐患照片</label>
+            <input id="photo" type="file" accept="image/*" multiple>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="save-btn" type="submit">保存记录</button>
+          <p id="message" class="message" aria-live="polite"></p>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel" aria-label="历史记录">
+      <div class="section-title">
+        <h2>历史记录</h2>
+        <button id="exportBtn" class="export-btn" type="button">导出Excel</button>
+        <span id="recordCount" class="count">共 0 条</span>
+      </div>
+      <div id="records" class="records"></div>
+    </section>
+  </main>
+
+  <div id="previewModal" class="preview-modal" aria-hidden="true">
+    <div class="preview-content">
+      <button id="previewClose" class="preview-close" type="button" aria-label="关闭预览">×</button>
+      <img id="previewImage" src="" alt="隐患照片预览">
+      <button id="previewDelete" class="preview-delete" type="button">删除照片</button>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "hazard_work_logs";
+    const DB_NAME = "hazard_work_logs_db";
+    const STORE_NAME = "records_store";
+    const DB_RECORDS_KEY = "records";
+    const CLOUD_MIGRATION_KEY = "hazard_logs_cloud_migrated_v1";
+    const SUPABASE_URL = "https://fnpjqpxhewpkoyhkxwer.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_1du07Z8kDGXpHbsBTjd2vQ_a3Tv--vp";
+    const HAZARD_API = `${SUPABASE_URL}/rest/v1/hazard_logs`;
+    let dbPromise = null;
+    let cloudMigrationPromise = null;
+    const form = document.getElementById("logForm");
+    const typeInput = document.getElementById("type");
+    const locationInput = document.getElementById("location");
+    const problemInput = document.getElementById("problem");
+    const photoInput = document.getElementById("photo");
+    const recordsEl = document.getElementById("records");
+    const recordCountEl = document.getElementById("recordCount");
+    const messageEl = document.getElementById("message");
+    const exportBtn = document.getElementById("exportBtn");
+    const previewModal = document.getElementById("previewModal");
+    const previewImage = document.getElementById("previewImage");
+    const previewClose = document.getElementById("previewClose");
+    const previewDelete = document.getElementById("previewDelete");
+    let currentPreview = null;
+
+    function openDatabase() {
+      if (dbPromise) {
+        return dbPromise;
+      }
+
+      dbPromise = new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+
+        request.onupgradeneeded = () => {
+          const db = request.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: "key" });
+          }
+        };
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+
+      return dbPromise;
+    }
+
+    async function getStoredRecords() {
+      const db = await openDatabase();
+
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(STORE_NAME, "readonly");
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get(DB_RECORDS_KEY);
+
+        request.onsuccess = () => resolve(request.result ? request.result.records || [] : []);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    async function apiRequest(query = "", options = {}) {
+      const response = await fetch(`${HAZARD_API}${query}`, {
+        ...options,
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": "application/json",
+          ...options.headers
+        }
+      });
+
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || `云端请求失败：${response.status}`);
+      }
+
+      if (response.status === 204) {
+        return null;
+      }
+
+      const text = await response.text();
+      return text ? JSON.parse(text) : null;
+    }
+
+    async function migrateLocalRecordsToCloud() {
+      if (localStorage.getItem(CLOUD_MIGRATION_KEY) === "done") {
+        return;
+      }
+
+      if (cloudMigrationPromise) {
+        return cloudMigrationPromise;
+      }
+
+      cloudMigrationPromise = (async () => {
+        try {
+          let localRecords = await getStoredRecords();
+          if (!localRecords.length) {
+            localRecords = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+          }
+
+          if (localRecords.length > 0) {
+            const payload = localRecords.map((record) => ({
+              type: record.type,
+              location: record.location,
+              problem: record.problem,
+              completed: Boolean(record.completed),
+              photo_paths: getRecordPhotos(record),
+              created_at: record.time ? new Date(record.time.replace(" ", "T")).toISOString() : new Date().toISOString()
+            }));
+
+            await apiRequest("", {
+              method: "POST",
+              headers: { Prefer: "return=minimal" },
+              body: JSON.stringify(payload)
+            });
+          }
+
+          localStorage.setItem(CLOUD_MIGRATION_KEY, "done");
+        } catch (error) {
+          console.warn("本地记录迁移失败，将在下次打开时重试。", error);
+        }
+      })();
+
+      return cloudMigrationPromise;
+    }
+
+    async function loadRecords() {
+      await migrateLocalRecordsToCloud();
+      const rows = await apiRequest("?select=id,type,location,problem,completed,photo_paths,created_at&order=created_at.desc");
+      return rows.map((row) => ({
+        id: row.id,
+        type: row.type,
+        time: formatTime(new Date(row.created_at)),
+        location: row.location,
+        problem: row.problem,
+        completed: row.completed,
+        photos: Array.isArray(row.photo_paths) ? row.photo_paths : []
+      }));
+    }
+
+    function pad(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function formatTime(date) {
+      const year = date.getFullYear();
+      const month = pad(date.getMonth() + 1);
+      const day = pad(date.getDate());
+      const hour = pad(date.getHours());
+      const minute = pad(date.getMinutes());
+      return `${year}-${month}-${day} ${hour}:${minute}`;
+    }
+
+    function makeId() {
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function setMessage(text, isError) {
+      messageEl.textContent = text;
+      messageEl.classList.toggle("error", Boolean(isError));
+      if (text && !isError) {
+        window.setTimeout(() => {
+          if (messageEl.textContent === text) {
+            messageEl.textContent = "";
+          }
+        }, 2200);
+      }
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          resolve("");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("照片读取失败"));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error("照片加载失败"));
+        image.src = src;
+      });
+    }
+
+    async function readPhotoAsDataUrl(file) {
+      if (!file) {
+        return "";
+      }
+
+      const originalDataUrl = await readFileAsDataUrl(file);
+
+      try {
+        const image = await loadImage(originalDataUrl);
+        const maxSize = 1280;
+        const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
+        const width = Math.max(1, Math.round(image.width * scale));
+        const height = Math.max(1, Math.round(image.height * scale));
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.width = width;
+        canvas.height = height;
+        context.drawImage(image, 0, 0, width, height);
+        return canvas.toDataURL("image/jpeg", 0.72);
+      } catch (error) {
+        return originalDataUrl;
+      }
+    }
+
+    async function readPhotosAsDataUrls(files) {
+      return Promise.all(Array.from(files || []).map(readPhotoAsDataUrl));
+    }
+
+    function getRecordPhotos(record) {
+      if (Array.isArray(record.photos)) {
+        return record.photos.filter(Boolean);
+      }
+      return record.photo ? [record.photo] : [];
+    }
+
+    function openPreview(src, recordId, photoIndex) {
+      previewImage.src = src;
+      currentPreview = { recordId, photoIndex };
+      previewModal.classList.add("open");
+      previewModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closePreview() {
+      previewModal.classList.remove("open");
+      previewModal.setAttribute("aria-hidden", "true");
+      previewImage.src = "";
+      currentPreview = null;
+    }
+
+    async function renderRecords() {
+      let records;
+      try {
+        records = await loadRecords();
+      } catch (error) {
+        recordCountEl.textContent = "云端连接失败";
+        recordsEl.innerHTML = '<div class="empty">无法连接云数据库，请检查网络后刷新页面。</div>';
+        setMessage("云端数据加载失败，请检查网络。", true);
+        return;
+      }
+      recordCountEl.textContent = `共 ${records.length} 条`;
+
+      if (records.length === 0) {
+        recordsEl.innerHTML = '<div class="empty">暂无历史记录</div>';
+        return;
+      }
+
+      recordsEl.innerHTML = records.map((record) => {
+        const photos = getRecordPhotos(record);
+        const photoImages = photos.map((photo, index) => `
+          <img class="preview-photo" src="${photo}" alt="隐患照片${index + 1}" data-src="${photo}" data-id="${escapeHtml(record.id)}" data-index="${index}">
+        `).join("");
+        const photoHtml = `
+          <div class="photo-wrap">
+            <div class="photo-list">
+              ${photoImages}
+              <label class="add-photo-label">
+                增加照片
+                <input class="add-photo-input" type="file" accept="image/*" multiple data-id="${escapeHtml(record.id)}">
+              </label>
+            </div>
+          </div>
+        `;
+        const completed = Boolean(record.completed);
+        const statusText = completed ? "已完成整改" : "未完成整改";
+
+        return `
+          <article class="record">
+            <div class="record-head">
+              <div class="record-meta">
+                <span class="tag">${escapeHtml(record.type)}</span>
+                <span class="time">${escapeHtml(record.time)}</span>
+              </div>
+              <div class="record-actions">
+                <label class="complete-toggle">
+                  <input class="complete-checkbox" type="checkbox" data-id="${escapeHtml(record.id)}" ${completed ? "checked" : ""}>
+                  <span>${statusText}</span>
+                </label>
+                <button class="edit-btn" type="button" data-id="${escapeHtml(record.id)}">编辑</button>
+                <button class="delete-btn" type="button" data-id="${escapeHtml(record.id)}">删除</button>
+              </div>
+            </div>
+            <div class="record-body">
+              <div class="item"><strong>故障地点</strong><span>${escapeHtml(record.location)}</span></div>
+              <div class="item"><strong>问题描述</strong><span class="problem-text">${escapeHtml(record.problem)}</span></div>
+            </div>
+            ${photoHtml}
+          </article>
+        `;
+      }).join("");
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      setMessage("", false);
+
+      const record = {
+        id: makeId(),
+        type: typeInput.value,
+        time: formatTime(new Date()),
+        location: locationInput.value,
+        problem: problemInput.value.trim(),
+        completed: false,
+        photos: []
+      };
+
+      if (!record.location || !record.problem) {
+        setMessage("请选择故障地点并填写问题描述。", true);
+        return;
+      }
+
+      try {
+        record.photos = await readPhotosAsDataUrls(photoInput.files);
+        await apiRequest("", {
+          method: "POST",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({
+            type: record.type,
+            location: record.location,
+            problem: record.problem,
+            completed: false,
+            photo_paths: record.photos
+          })
+        });
+        form.reset();
+        await renderRecords();
+        setMessage("已保存到云端。", false);
+      } catch (error) {
+        setMessage("云端保存失败，请检查网络后重试。", true);
+      }
+    });
+
+    recordsEl.addEventListener("click", async (event) => {
+      const previewPhoto = event.target.closest(".preview-photo");
+      if (previewPhoto) {
+        openPreview(previewPhoto.dataset.src, previewPhoto.dataset.id, Number(previewPhoto.dataset.index));
+        return;
+      }
+
+      const button = event.target.closest(".delete-btn");
+      if (!button) {
+        return;
+      }
+
+      const id = button.dataset.id;
+      try {
+        await apiRequest(`?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+        await renderRecords();
+        setMessage("记录已删除。", false);
+      } catch (error) {
+        setMessage("删除失败，请检查网络后重试。", true);
+      }
+    });
+
+    recordsEl.addEventListener("click", async (event) => {
+      const editButton = event.target.closest(".edit-btn");
+      const confirmButton = event.target.closest(".confirm-edit-btn");
+      const cancelButton = event.target.closest(".cancel-edit-btn");
+
+      if (editButton) {
+        const recordEl = editButton.closest(".record");
+        const problemText = recordEl.querySelector(".problem-text");
+        const currentText = problemText.textContent;
+        problemText.innerHTML = `
+          <textarea class="edit-area">${escapeHtml(currentText)}</textarea>
+          <div class="edit-actions">
+            <button class="confirm-edit-btn" type="button" data-id="${escapeHtml(editButton.dataset.id)}">保存修改</button>
+            <button class="cancel-edit-btn" type="button">取消</button>
+          </div>
+        `;
+        editButton.disabled = true;
+        recordEl.querySelector(".edit-area").focus();
+        return;
+      }
+
+      if (confirmButton) {
+        const recordEl = confirmButton.closest(".record");
+        const textarea = recordEl.querySelector(".edit-area");
+        const newProblem = textarea.value.trim();
+
+        if (!newProblem) {
+          setMessage("问题描述不能为空。", true);
+          return;
+        }
+
+        try {
+          await apiRequest(`?id=eq.${encodeURIComponent(confirmButton.dataset.id)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ problem: newProblem })
+          });
+          await renderRecords();
+          setMessage("问题描述已修改。", false);
+        } catch (error) {
+          setMessage("修改失败，请检查网络后重试。", true);
+        }
+        return;
+      }
+
+      if (cancelButton) {
+        await renderRecords();
+        setMessage("已取消编辑。", false);
+      }
+    });
+
+    recordsEl.addEventListener("change", async (event) => {
+      const checkbox = event.target.closest(".complete-checkbox");
+      const addPhotoInput = event.target.closest(".add-photo-input");
+
+      if (checkbox) {
+        try {
+          await apiRequest(`?id=eq.${encodeURIComponent(checkbox.dataset.id)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ completed: checkbox.checked })
+          });
+          await renderRecords();
+          setMessage(checkbox.checked ? "已标记完成整改。" : "已标记未完成整改。", false);
+        } catch (error) {
+          await renderRecords();
+          setMessage("整改状态更新失败，请检查网络。", true);
+        }
+        return;
+      }
+
+      if (addPhotoInput) {
+        if (!addPhotoInput.files.length) {
+          return;
+        }
+
+        try {
+          const newPhotos = await readPhotosAsDataUrls(addPhotoInput.files);
+          const record = (await loadRecords()).find((item) => item.id === addPhotoInput.dataset.id);
+          const photos = getRecordPhotos(record).concat(newPhotos);
+          await apiRequest(`?id=eq.${encodeURIComponent(addPhotoInput.dataset.id)}`, {
+            method: "PATCH",
+            headers: { Prefer: "return=minimal" },
+            body: JSON.stringify({ photo_paths: photos })
+          });
+          await renderRecords();
+          setMessage("照片已增加。", false);
+        } catch (error) {
+          setMessage("增加照片失败，请检查网络或减少单次照片数量。", true);
+        }
+      }
+    });
+
+    previewClose.addEventListener("click", closePreview);
+
+    previewDelete.addEventListener("click", async () => {
+      if (!currentPreview) {
+        return;
+      }
+
+      const shouldDelete = window.confirm("确定要删除这张照片吗？");
+      if (!shouldDelete) {
+        return;
+      }
+
+      try {
+        const record = (await loadRecords()).find((item) => item.id === currentPreview.recordId);
+        const photos = getRecordPhotos(record);
+        photos.splice(currentPreview.photoIndex, 1);
+        await apiRequest(`?id=eq.${encodeURIComponent(currentPreview.recordId)}`, {
+          method: "PATCH",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({ photo_paths: photos })
+        });
+        closePreview();
+        await renderRecords();
+        setMessage("照片已删除。", false);
+      } catch (error) {
+        setMessage("照片删除失败，请检查网络。", true);
+      }
+    });
+
+    previewModal.addEventListener("click", (event) => {
+      if (event.target === previewModal) {
+        closePreview();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && previewModal.classList.contains("open")) {
+        closePreview();
+      }
+    });
+
+    async function exportToExcel() {
+      const records = await loadRecords();
+      if (records.length === 0) {
+        setMessage("暂无记录可导出。", true);
+        return;
+      }
+
+      const maxPhotoCount = Math.max(1, ...records.map((record) => getRecordPhotos(record).length));
+      const photoHeaders = Array.from({ length: maxPhotoCount }, (_, index) => `<th>隐患照片${index + 1}</th>`).join("");
+      const photoCols = Array.from({ length: maxPhotoCount }, () => '<col style="width: 170px;">').join("");
+
+      const rows = records.map((record) => `
+        <tr class="data-row">
+          <td>${escapeHtml(record.type)}</td>
+          <td>${escapeHtml(record.time)}</td>
+          <td>${escapeHtml(record.location)}</td>
+          <td>${escapeHtml(record.problem)}</td>
+          <td>${record.completed ? "已完成整改" : "未完成整改"}</td>
+          ${Array.from({ length: maxPhotoCount }, (_, index) => {
+            const photo = getRecordPhotos(record)[index];
+            return `<td class="photo-cell">${photo ? `<img class="export-photo" src="${photo}" width="150" height="110" alt="隐患照片${index + 1}">` : ""}</td>`;
+          }).join("")}
+        </tr>
+      `).join("");
+
+      const table = `
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            table { border-collapse: collapse; }
+            th, td { border: 1px solid #999; padding: 8px; vertical-align: middle; mso-number-format:"\\@"; }
+            th { background: #e7f3f7; font-weight: bold; }
+            .data-row { height: 125px; }
+            .photo-cell { width: 170px; height: 125px; text-align: center; vertical-align: middle; }
+            .export-photo { display: block; width: 150px; height: 110px; margin: 0 auto; object-fit: contain; }
+          </style>
+        </head>
+        <body>
+          <table>
+            <colgroup>
+              <col style="width: 110px;">
+              <col style="width: 145px;">
+              <col style="width: 90px;">
+              <col style="width: 280px;">
+              <col style="width: 120px;">
+              ${photoCols}
+            </colgroup>
+            <thead>
+              <tr>
+                <th>分类</th>
+                <th>时间</th>
+                <th>地点</th>
+                <th>问题描述</th>
+                <th>是否完成整改</th>
+                ${photoHeaders}
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob(["\ufeff", table], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `隐患管理工作日志_${formatTime(new Date()).replace(/[-: ]/g, "")}.xls`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      setMessage("Excel已导出。", false);
+    }
+
+    exportBtn.addEventListener("click", exportToExcel);
+
+    renderRecords();
+  </script>
+</body>
+</html>
